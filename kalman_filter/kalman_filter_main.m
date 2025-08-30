@@ -3,51 +3,53 @@ clc; clear; close all;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SYSTEM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % import system
 % x'(t) = Ax(t) +Bu(t) +Ew(t)
-%  y(t) = Cx(t) +v(t)
+%  y(t) = Cx(t)
 [ sys ] = sys_RC;
-%[ sys ] = sys_RLC;
 
-% discrete-time model equivalent
-% x(k+1) = Fx(k) +Gu(k) +Jw(k)
+% discrete-time model equivalent (Anderson and Moore, 1979) w* = [u' w']'
+% x(k+1) = Fx(k) +Gw*(k)
 %   z(k) = Hx(k) +v(k)
 T        = 1/1000;
 sysd     = c2d( sys,T,'zoh' );
 
 % define input and disturbance signals
 Tf    = 0.10;                               % simulation time                
-[u,t] = gensig('square',Tf/2,Tf,T);         % input and time
-q     = 0.1;                                % variance of process
-r     = 0.4;                                % variance of measurement
-w     = q*randn(length(t),1);               % gaussian noise with covariance Q
-v     = r*randn(length(t),1);               % gaussian noise with variance R
+[u,t] = gensig('square',Tf/3,Tf,T);         % input signal and time
+u     = 5*u;                                % input amplitude
+Q     = 0.2;                                % variance of process noise
+R     = 0.5;                                % variance of measurement noise
+w     = sqrt(Q)*randn(length(t),1);         % gaussian noise with covariance Q
+v     = sqrt(R)*randn(length(t),1);         % gaussian noise with variance R
 
-% simulate system WITH process and measurement NOISE
-[z,t,x_] = lsim( sysd, [u w], t );
-z        = z +v;
+% simulate time response of TRUE system with process NOISE
+[y,t,x_] = lsim( sys, [u w], t);
+z        = y +v;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% KALMAN FILTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-x_0 = 0.1*ones( length(sys.A),1 );          % initial condition
+x_0 = 1*ones( length(sys.A),1 );            % initial condition
 P_0 = 10*diag( ones( length(sys.A),1 ) );   % initial covariance
-[ x, y, K_m, P_m ] = kalman_filter( sysd, u, w', z, t, x_0, P_0, r, q );
+% obtain estimated states and output
+[ x, y_hat, e, K_m, P_m ] = kalman_filter( sysd, u, w', z, t, x_0, P_0, R, Q );
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-[y_o,t_o,x_o] = lsim( sys, [u 0*w], t);     % IDEAL behavior for comparison
-
 figure(1)
 for k = 1:length(sys.A)
     subplot( round((length(sys.A)+1)/2 ),2,k)
-    plot(t,x_o(:,k),'k','linewidth',2); hold on;
-    plot(t,x_(:,k),'bo:','linewidth',2); 
+    plot(t,x_(:,k),'k','linewidth',2);
+    hold on;
     stairs(t,x(:,k),'r','linewidth',1.5);
     xlabel('Time (s)'); ylabel('Amplitude'); title(['State x_' num2str(k) '(t)']); grid on;
-    legend('ideal','real','estimated'); hold off;
+    legend('real','estimated'); hold off;
 end
 
 subplot( round((length(sys.A)+1)/2 ),2,k+1)
-plot(t,y_o,'k','linewidth',2); hold on;
+plot(t,y,'k','linewidth',2);
+hold on;
 plot(t,z,'bo:','linewidth',2);
-stairs(t,y,'r','linewidth',1.5);
+stairs(t,y_hat,'r','linewidth',1.5);
 xlabel('Time (s)'); ylabel('Amplitude'); title('Output y(t)'); grid on;
-legend('ideal','measured','estimated');
+legend('real','measured','estimated');
+
+% B. D. Anderson, and J. B. Moore, “Optimal filtering,” Prentice–Hall, New Jersey, 1979.

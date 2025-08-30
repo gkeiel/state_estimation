@@ -1,6 +1,7 @@
 function [ sys ] = sys_motor
 
-% DC motor model
+% DC motor position model
+% https://ctms.engin.umich.edu
 J   = 3.22e-6;   %kg*m^2
 b   = 3.5e-6;    %N*m*s
 k_b = 0.0274;    %V/rad/s
