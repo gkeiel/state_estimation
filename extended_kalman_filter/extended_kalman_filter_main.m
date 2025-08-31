@@ -2,37 +2,39 @@ clc; clear; close all;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SYSTEM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% import system
-% dx/dt = Ax(t) +Bu(t) +Ew(t)
-%  y(t) = Cx(t)
-[ sys ] = sys_RLC;
-
-% discrete-time model equivalent (Anderson and Moore, 1979) w* = [u' w']'
-% x(k+1) = Fx(k) +Gw*(k)
-%   z(k) = Hx(k) +v(k)
-T        = 1/1000;
-sysd     = c2d( sys,T,'zoh' );
+% import discrete-time model
+% x(k+1) = f(x(k),u(k)) +w(k)
+%   y(k) = h(x(t)) +v(k)
+[ sysd ] = nl_sys_2nd_order;
 
 % define input and disturbance signals
-Tf    = 0.10;                               % simulation time                
+T     = sysd.T;
+Tf    = 0.5;                                % simulation time                
 [u,t] = gensig('square',Tf/2,Tf,T);         % input signal and time
 u     = 5*u;                                % input amplitude
-Q     = 0.2;                                % variance of process noise
+Q     = 0.5;                                % variance of process noise
 R     = 0.5;                                % variance of measurement noise
 w     = sqrt(Q)*randn(length(t),1);         % gaussian noise with covariance Q
 v     = sqrt(R)*randn(length(t),1);         % gaussian noise with variance R
 
 % simulate time response of TRUE system with process NOISE
-[y,t,x_] = lsim( sys, [u w], t);
-z        = y +v;
+n     = sysd.n;
+x_    = ones( n,1 );
+f     = sysd.f;
+h     = sysd.h;
+for k = 1:length(t)-1
+    x_(:,k+1) = f(x_(:,k), u(k)) +w(k);
+    y(k+1)    = h(x_(:,k+1));
+end
+x_ = x_.';
+z  = y' +v;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%% KALMAN FILTER %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-n   = length(sys.A);
-x_0 = 1*ones( n,1 );                        % initial condition
+x_0 = 10*ones( n,1 );                       % initial condition
 P_0 = 10*diag( ones(n,1) );                 % initial covariance
 % obtain estimated states and output
-[ x, y_hat, e, K_m, P_m ] = kalman_filter( sysd, u, w', z, t, x_0, P_0, R, Q );
+[ x, y_hat, e, K_m, P_m ] = extended_kalman_filter( sysd, u, w', z, t, x_0, P_0, R, Q );
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RESULTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,5 +55,3 @@ plot(t,z,'bo:','linewidth',2);
 stairs(t,y_hat,'r','linewidth',1.5);
 xlabel('Time (s)'); ylabel('Amplitude'); title('Output y(t)'); grid on;
 legend('real','measured','estimated');
-
-% B. D. Anderson, and J. B. Moore, “Optimal filtering,” Prentice–Hall, New Jersey, 1979.
