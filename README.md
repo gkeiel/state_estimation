@@ -4,8 +4,7 @@ A repository of algorithms for state estimation in modern control systems. Each 
 
 The following algorithms are available:
 - [Kalman filter](./kalman_filter)
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+- [Extended Kalman filter](./extended_kalman_filter)
 
 ## Kalman filter
 
@@ -19,11 +18,3 @@ Considering an DC motor system with process noise where $y(t)$ is the angular po
 
 Considering an RLC system with process noise where $y(t)$ is the capacitor voltage $v_c(t)$, the following results are obtained:
 <img width="1920" height="926" alt="kalman_filter_03" src="https://github.com/user-attachments/assets/ce78c1aa-097c-4599-b0c8-b8e4448af824" />
-=======
-- [Kalman filter](./extended_kalman_filter)
-
->>>>>>> Stashed changes
-=======
-- [Kalman filter](./extended_kalman_filter)
-
->>>>>>> Stashed changes
