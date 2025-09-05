@@ -16,5 +16,4 @@ B = [0;     0;         1/L_a];
 C = [1      0          0];
 D = 0;
 E = B;
-n = size(E);
-sys = ss(A,[B E],C,[D zeros(1,n(2))]);
+sys = ss(A,[B E],C,[D 0]);

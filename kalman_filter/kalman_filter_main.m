@@ -5,19 +5,19 @@ clc; clear; close all;
 % import system
 % dx/dt = Ax(t) +Bu(t) +Ew(t)
 %  y(t) = Cx(t)
-[ sys ] = sys_RLC;
+[ sys ] = sys_RC;
 
-% discrete-time model equivalent (Anderson and Moore, 1979) w* = [u' w']'
-% x(k+1) = Fx(k) +Gw*(k)
+% discrete-time model equivalent (Anderson and Moore, 1979)
+% x(k+1) = Fx(k) +Gu(k) +Jw(k)
 %   z(k) = Hx(k) +v(k)
 T        = 1/1000;
 sysd     = c2d( sys,T,'zoh' );
 
 % define input and disturbance signals
 Tf    = 0.10;                               % simulation time                
-[u,t] = gensig('square',Tf/2,Tf,T);         % input signal and time
+[u,t] = gensig('square',Tf/3,Tf,T);         % input signal and time
 u     = 5*u;                                % input amplitude
-Q     = 0.2;                                % variance of process noise
+Q     = 0.5;                                % variance of process noise
 R     = 0.5;                                % variance of measurement noise
 w     = sqrt(Q)*randn(length(t),1);         % gaussian noise with covariance Q
 v     = sqrt(R)*randn(length(t),1);         % gaussian noise with variance R
@@ -43,7 +43,7 @@ for k = 1:n
     hold on;
     stairs(t,x(:,k),'r','linewidth',1.5);
     xlabel('Time (s)'); ylabel('Amplitude'); title(['State x_' num2str(k) '(t)']); grid on;
-    legend('real','estimated'); hold off;
+    legend('real','estimated');
 end
 
 subplot( round((n+1)/2), 2, k+1 )

@@ -1,6 +1,6 @@
 function [ sys ] = sys_RC
 
-% RC filter model
+% RC filter output-voltage model
 R_1 = 13.33;
 C_1 = 0.0003;
 

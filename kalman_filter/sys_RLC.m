@@ -1,6 +1,6 @@
 function [ sys ] = sys_RLC
 
-% LC filter model
+% LC filter output-voltage model
 r_1 = 0.015;
 L_1 = 0.001;
 C_1 = 0.0003;
