@@ -8,9 +8,9 @@ The following algorithms are available:
 
 ## Kalman filter
 
-A code to compute Kalman optimal gain and minimum mean square error (MMSE) estimates of a system states. A variety of models avaiable as example. Easily adaptable to other systems and inputs, which makes it good for study applications.
+A code to compute Kalman optimal gain and minimum mean square error (MMSE) estimates of a system states. A variety of models is avaiable as example, being easily adaptable to other systems and inputs, which makes it good for study applications.
 
-Considering an RC system with process noise where $y(t)$ is the capacitor voltage $v_c(t)$, the following results are obtained:
+Considering an RC system with process noise where $y(t)$ is the capacitor voltage $v_c(t)$ and a square wave input signal $u(t)$, the following results are obtained:
 <img width="1920" height="926" alt="kalman_filter_01" src="https://github.com/user-attachments/assets/b91bf736-91cd-4a8f-95bb-141f03522659" />
 
 Considering an DC motor system with process noise where $y(t)$ is the angular position $\theta (t)$, the following results are obtained:
